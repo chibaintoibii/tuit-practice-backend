@@ -1,35 +1,44 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import User from './models/user';
-import CreateUserDto from './dto/create-user.dto';
+import {forwardRef, Inject, Injectable} from '@nestjs/common';
+import {InjectModel} from '@nestjs/sequelize';
+import {User} from './models/user.model';
+import {CreateUserDto} from './dto/create-user.dto';
+import {AuthService} from "../auth/auth.service";
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectModel(User) private readonly userModel: typeof User) {}
+  constructor(
+    @Inject(forwardRef(() => AuthService)) private authService: AuthService,
+    @InjectModel(User) private readonly userModel: typeof User,
+  ) {
+  }
 
-    async create(dto: CreateUserDto) {
-        const user = await this.userModel.create(dto);
-        const { password, ...result } = user;
-        return result;
-    }
+  async create(dto: CreateUserDto): Promise<User> {
+    const hashPassword = await this.authService.hashPassword(dto.password);
+    return await this.userModel.create({
+      ...dto,
+      password: hashPassword
+    });
+  }
 
-    async findByUsername(username: string) {
-        return this.userModel.findOne({ where: { username, state: 1 } });
-    }
+  async findById(id: number) {
+    return this.userModel.findByPk(id, {having: {state: 1}});
+  }
 
-    async findAllTeachers() {
-        const teachers = await this.userModel.findAll({ 
-            where: { role: 'teacher', state: 1 }, 
-            attributes: { exclude: ['password'] }
-        });
-        return teachers;
-    }
+  async findByUsername(username: string): Promise<User> {
+    return this.userModel.findByPk(username);
+  }
 
-    async findAllStudents() {
-        const teachers = await this.userModel.findAll({ 
-            where: { role: 'student', state: 1 }, 
-            attributes: { exclude: ['password'] }
-        });
-        return teachers;
-    }
+  async findAllTeachers(): Promise<User[]> {
+    return await this.userModel.findAll({
+      where: {role: 'teacher', state: 1},
+      attributes: {exclude: ['password']}
+    });
+  }
+
+  async findAllStudents(): Promise<User[]> {
+    return await this.userModel.findAll({
+      where: {role: 'student', state: 1},
+      attributes: {exclude: ['password']}
+    });
+  }
 }

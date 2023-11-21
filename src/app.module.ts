@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import {Module, OnModuleInit} from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { GroupsModule } from './groups/groups.module';
@@ -6,14 +6,14 @@ import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { ReportsModule } from './reports/reports.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule } from '@nestjs/config';
-import { AppService } from './app.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { FileModule } from './file/file.module';
-import Enrollment from './enrollments/models/enrollment';
-import Group from './groups/models/group';
-import Report from './reports/models/report';
-import User from './users/models/user';
-import db from './db/config';
+import {Enrollment} from './enrollments/models/enrollment.model';
+import {Group} from './groups/models/group.model';
+import {Report} from './reports/models/report.model';
+import {User} from './users/models/user.model';
+import db from './shared/constants/db.constants'
+import {Seeder} from "./seeder";
 
 @Module({
   imports: [
@@ -32,6 +32,7 @@ import db from './db/config';
       retryAttempts: 10,
       retryDelay: 5000
     }),
+    SequelizeModule.forFeature([User]),
     ScheduleModule.forRoot(),
     AuthModule, 
     UsersModule, 
@@ -41,6 +42,13 @@ import db from './db/config';
     FileModule
   ],
   controllers: [],
-  providers: [AppService],
+  providers: [Seeder],
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit{
+  constructor(private readonly seeder: Seeder) {}
+
+  async onModuleInit() {
+    // Seed the data when the application starts
+    await this.seeder.seed();
+  }
+}

@@ -1,12 +1,12 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
-import Enrollment from "src/enrollments/models/enrollment";
-import User from "src/users/models/user";
+import {Enrollment} from "src/enrollments/models/enrollment.model";
+import {User} from "src/users/models/user.model";
 
 @Table({
     tableName: 'groups',
     timestamps: true,
 })
-export default class Group extends Model<Group> {
+export class Group extends Model<Group> {
     @Column({
         type: DataType.INTEGER,
         autoIncrement: true,

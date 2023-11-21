@@ -1,13 +1,13 @@
-import { Column, DataType, HasMany, Model, Table } from "sequelize-typescript";
-import Enrollment from "src/enrollments/models/enrollment";
-import Group from "src/groups/models/group";
-import { Role } from "src/users/user-role.enum";
+import {Column, DataType, HasMany, HasOne, Model, Table} from "sequelize-typescript";
+import {Enrollment} from "src/enrollments/models/enrollment.model";
+import {Group} from "src/groups/models/group.model";
+import { Role } from "src/shared/enums/user-role.enum";
 
 @Table({
     tableName: "users",
     timestamps: true,
 })
-export default class User extends Model<User> {
+export class User extends Model<User> {
     @Column({
         type: DataType.INTEGER,
         autoIncrement: true,
@@ -17,28 +17,31 @@ export default class User extends Model<User> {
     id: number;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(100),
         allowNull: false,
+        field: 'full_name'
     })
-    fullname: string;
+    fullName: string;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(100),
         allowNull: false,
         field: 'phone_number',
     })
     phoneNumber: string;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(100),
         allowNull: false,
-        unique: true
+        unique: true,
+        primaryKey: true
     })
     username: string;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(50),
         allowNull: false,
+
     })
     password: string;
 
@@ -64,6 +67,6 @@ export default class User extends Model<User> {
     @HasMany(() => Group)
     groups: Group[];
 
-    @HasMany(() => Enrollment)
+    @HasOne(() => Enrollment)
     enrollments: Enrollment[];
 }

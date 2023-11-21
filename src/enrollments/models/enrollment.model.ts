@@ -1,18 +1,18 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
-import Group from "src/groups/models/group";
-import { EnrollmentStatus } from "src/enrollments/enrollment-status.enum";
-import User from "src/users/models/user";
+import {Group} from "src/groups/models/group.model";
+import { EnrollmentStatus } from "src/shared/enums/enrollment-status.enum";
+import {User} from "src/users/models/user.model";
 
 @Table({
     tableName: 'enrollments',
     timestamps: true,
 })
-export default class Enrollment extends Model<Enrollment> {
+export class Enrollment extends Model<Enrollment> {
     @Column({
         type: DataType.INTEGER,
         autoIncrement: true,
         primaryKey: true,
-        field: 'enrollemt_id',
+        field: 'enrollment_id',
     })
     id: number;
 
@@ -93,4 +93,11 @@ export default class Enrollment extends Model<Enrollment> {
         defaultValue: EnrollmentStatus.ENROLLED
     })
     status: EnrollmentStatus;
+
+    @Column({
+        type: DataType.DOUBLE,
+        defaultValue: 0,
+        allowNull: false
+    })
+    gpa: number;
 }
